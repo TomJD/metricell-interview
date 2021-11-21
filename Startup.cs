@@ -1,7 +1,9 @@
+using InterviewTest.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -21,13 +23,19 @@ namespace InterviewTest
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.AddCors();
+
+            services.AddControllersWithViews().AddNewtonsoftJson();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
                 configuration.RootPath = "ClientApp/build";
             });
+
+            services.AddDbContext<InterviewTestDbContext>();
+
+            services.AddScoped<IListService, ListService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -37,6 +45,11 @@ namespace InterviewTest
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseCors(builder => builder
+               .AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader());
 
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
@@ -73,7 +86,7 @@ namespace InterviewTest
                 delTableCmd.ExecuteNonQuery();
 
                 var createTableCmd = connection.CreateCommand();
-                createTableCmd.CommandText = "CREATE TABLE Employees(Name VARCHAR(50), Value INT)";
+                createTableCmd.CommandText = "CREATE TABLE Employees(Id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, Name VARCHAR(50), Value INT)";
                 createTableCmd.ExecuteNonQuery();
 
                 //Fill with data
@@ -81,78 +94,78 @@ namespace InterviewTest
                 {
                     var insertCmd = connection.CreateCommand();
                     insertCmd.CommandText = @"INSERT INTO Employees VALUES
-                        ('Abul', 1357),
-                        ('Adolfo', 1224),
-                        ('Alexander', 2296),
-                        ('Amber', 1145),
-                        ('Amy', 4359),
-                        ('Andy', 1966),
-                        ('Anna', 4040),
-                        ('Antony', 449),
-                        ('Ashley', 8151),
-                        ('Borja', 9428),
-                        ('Cecilia', 2136),
-                        ('Christopher', 9035),
-                        ('Dan', 1475),
-                        ('Dario', 284),
-                        ('David', 948),
-                        ('Elike', 1860),
-                        ('Ella', 4549),
-                        ('Ellie', 5736),
-                        ('Elliot', 1020),
-                        ('Emily', 7658),
-                        ('Faye', 7399),
-                        ('Fern', 1422),
-                        ('Francisco', 5028),
-                        ('Frank', 3281),
-                        ('Gary', 9190),
-                        ('Germaine', 6437),
-                        ('Greg', 5929),
-                        ('Harvey', 8471),
-                        ('Helen', 963),
-                        ('Huzairi', 9491),
-                        ('Izmi', 8324),
-                        ('James', 6994),
-                        ('Jarek', 6581),
-                        ('Jim', 202),
-                        ('John', 261),
-                        ('Jose', 1605),
-                        ('Josef', 3714),
-                        ('Karthik', 4828),
-                        ('Katrin', 5393),
-                        ('Lee', 269),
-                        ('Luke', 5926),
-                        ('Madiha', 2329),
-                        ('Marc', 3651),
-                        ('Marina', 6903),
-                        ('Mark', 3368),
-                        ('Marzena', 7515),
-                        ('Mohamed', 1080),
-                        ('Nichole', 1221),
-                        ('Nikita', 8520),
-                        ('Oliver', 2868),
-                        ('Patryk', 1418),
-                        ('Paul', 4332),
-                        ('Ralph', 1581),
-                        ('Raymond', 7393),
-                        ('Roman', 4056),
-                        ('Ryan', 252),
-                        ('Sara', 2618),
-                        ('Sean', 691),
-                        ('Seb', 5395),
-                        ('Sergey', 8282),
-                        ('Shaheen', 3721),
-                        ('Sharni', 7737),
-                        ('Sinu', 3349),
-                        ('Stephen', 8105),
-                        ('Tim', 8386),
-                        ('Tina', 5133),
-                        ('Tom', 7553),
-                        ('Tony', 4432),
-                        ('Tracy', 1771),
-                        ('Tristan', 2030),
-                        ('Victor', 1046),
-                        ('Yury', 1854)";
+                        (1,'Abul', 1357),
+                        (2,'Adolfo', 1224),
+                        (3,'Alexander', 2296),
+                        (4,'Amber', 1145),
+                        (5,'Amy', 4359),
+                        (6,'Andy', 1966),
+                        (7,'Anna', 4040),
+                        (8,'Antony', 449),
+                        (9,'Ashley', 8151),
+                        (10,'Borja', 9428),
+                        (11,'Cecilia', 2136),
+                        (12,'Christopher', 9035),
+                        (13,'Dan', 1475),
+                        (14,'Dario', 284),
+                        (15,'David', 948),
+                        (16,'Elike', 1860),
+                        (17,'Ella', 4549),
+                        (18,'Ellie', 5736),
+                        (19,'Elliot', 1020),
+                        (20,'Emily', 7658),
+                        (21,'Faye', 7399),
+                        (22,'Fern', 1422),
+                        (23,'Francisco', 5028),
+                        (24,'Frank', 3281),
+                        (25,'Gary', 9190),
+                        (26,'Germaine', 6437),
+                        (27,'Greg', 5929),
+                        (28,'Harvey', 8471),
+                        (29,'Helen', 963),
+                        (30,'Huzairi', 9491),
+                        (31,'Izmi', 8324),
+                        (32,'James', 6994),
+                        (33,'Jarek', 6581),
+                        (34,'Jim', 202),
+                        (35,'John', 261),
+                        (36,'Jose', 1605),
+                        (37,'Josef', 3714),
+                        (38,'Karthik', 4828),
+                        (39,'Katrin', 5393),
+                        (40,'Lee', 269),
+                        (41,'Luke', 5926),
+                        (42,'Madiha', 2329),
+                        (43,'Marc', 3651),
+                        (44,'Marina', 6903),
+                        (45,'Mark', 3368),
+                        (46,'Marzena', 7515),
+                        (47,'Mohamed', 1080),
+                        (48,'Nichole', 1221),
+                        (49,'Nikita', 8520),
+                        (50,'Oliver', 2868),
+                        (51,'Patryk', 1418),
+                        (52,'Paul', 4332),
+                        (53,'Ralph', 1581),
+                        (54,'Raymond', 7393),
+                        (55,'Roman', 4056),
+                        (56,'Ryan', 252),
+                        (57,'Sara', 2618),
+                        (58,'Sean', 691),
+                        (59,'Seb', 5395),
+                        (60,'Sergey', 8282),
+                        (61,'Shaheen', 3721),
+                        (62,'Sharni', 7737),
+                        (63,'Sinu', 3349),
+                        (64,'Stephen', 8105),
+                        (65,'Tim', 8386),
+                        (66,'Tina', 5133),
+                        (67,'Tom', 7553),
+                        (68,'Tony', 4432),
+                        (69,'Tracy', 1771),
+                        (70,'Tristan', 2030),
+                        (71,'Victor', 1046),
+                        (72,'Yury', 1854)";
                     insertCmd.ExecuteNonQuery();
                     transaction.Commit();
                 }

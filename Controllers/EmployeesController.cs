@@ -20,15 +20,16 @@ namespace InterviewTest.Controllers
                 connection.Open();
 
                 var queryCmd = connection.CreateCommand();
-                queryCmd.CommandText = @"SELECT Name, Value FROM Employees";
+                queryCmd.CommandText = @"SELECT Id, Name, Value FROM Employees";
                 using (var reader = queryCmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
                         employees.Add(new Employee
                         {
-                            Name = reader.GetString(0),
-                            Value = reader.GetInt32(1)
+                            Id = reader.GetInt32(0),
+                            Name = reader.GetString(1),
+                            Value = reader.GetInt32(2)
                         });
                     }
                 }
